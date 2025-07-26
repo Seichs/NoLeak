@@ -1,0 +1,96 @@
+# Example Dockerfile with fake secrets for testing NoLeak scanner
+# WARNING: These are fake secrets for testing purposes only!
+
+FROM node:16-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Environment variables with secrets (BAD PRACTICE - should be detected)
+ENV API_KEY=api_key_abcdefghijklmnopqrstuvwxyz123456
+ENV DATABASE_PASSWORD=docker_db_password_secret_123
+ENV JWT_SECRET=jwt_secret_key_for_containers_abcdefghijklmnop
+
+# More environment variables
+ENV STRIPE_SECRET_KEY=sk_live_container_stripe_key_1234567890abcdef
+ENV AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+ENV AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy application code
+COPY . .
+
+# Create user and set passwords (should be detected)
+RUN adduser -D -s /bin/sh appuser && \
+    echo 'appuser:hardcoded_user_password_123' | chpasswd
+
+# Download files with authentication (should be detected)
+RUN wget --user=admin --password=wget_password_secret_456 \
+    https://files.example.com/config.tar.gz
+
+# Database connection in RUN command (should be detected)
+RUN echo "DATABASE_URL=postgres://user:password@db:5432/app" > /app/.env
+
+# Git clone with credentials (should be detected)
+RUN git clone https://user:git_password_123@github.com/private/repo.git /tmp/repo
+
+# cURL commands with API keys (should be detected)
+RUN curl -H "Authorization: Bearer curl_api_token_abcdefghijklmnop" \
+    https://api.example.com/download/package.tar.gz -o package.tar.gz
+
+# SSH key copying (should be detected)
+RUN echo "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC5/example\n-----END PRIVATE KEY-----" \
+    > /app/ssh_key
+
+# Registry login (should be detected)
+RUN docker login -u dockeruser -p docker_registry_password_secret registry.example.com
+
+# Install certificates (should be detected)
+COPY certificates/private.key /etc/ssl/private/
+RUN echo "-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAExample...\n-----END CERTIFICATE-----" \
+    > /etc/ssl/certs/app.crt
+
+# Configuration file with secrets
+RUN echo '{"api_key": "config_api_key_1234567890abcdef", "password": "config_password_secret"}' \
+    > /app/config.json
+
+# Redis connection string
+RUN echo "REDIS_URL=redis://:redis_password_123@redis:6379/0" >> /app/.env
+
+# MongoDB connection
+RUN echo "MONGO_URI=mongodb://admin:mongo_secret_password@mongo:27017/app" >> /app/.env
+
+# SMTP configuration
+RUN echo "SMTP_PASSWORD=smtp_container_password_456" >> /app/.env
+
+# GitHub token for private repos
+RUN echo "GITHUB_TOKEN=ghp_container_github_token_abcdefghijklmnopqr" >> /app/.env
+
+# Slack webhook
+RUN echo "SLACK_WEBHOOK=https://hooks.slack.com/services/T123/B456/webhook_secret" >> /app/.env
+
+# FTP credentials
+RUN echo "FTP_URL=ftp://ftpuser:ftp_password_secret@ftp.example.com/" >> /app/.env
+
+# Create script with hardcoded secrets
+RUN echo '#!/bin/sh\necho "Connecting with password: script_password_123"' > /app/setup.sh && \
+    chmod +x /app/setup.sh
+
+# Base64 encoded secrets (should still be detected)
+RUN echo "SECRET_DATA=YWRtaW46cGFzc3dvcmQxMjM=" >> /app/.env
+
+# Comments with secrets (should still be detected)
+# TODO: Replace API key: todo_api_key_abcdefghijklmnop
+# Old credentials: old_user:old_password_456
+
+# Expose port
+EXPOSE 3000
+
+# Switch to non-root user
+USER appuser
+
+# Start application
+CMD ["npm", "start"] 
