@@ -377,16 +377,6 @@ pytest
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## Support
-
-- **Documentation**: [Full documentation](https://noleak.readthedocs.io)
-- **Issues**: [GitHub Issues](https://github.com/Seichs/NoLeak/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/Seichs/NoLeak/discussions)
-
-## Security
-
-Found a security issue? Please email security@noleak.dev instead of creating a public issue.
-
 ## Roadmap
 
 - [ ] Machine learning-based secret detection
