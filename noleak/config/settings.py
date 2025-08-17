@@ -42,7 +42,7 @@ MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10MB
 
 # Default output settings
 DEFAULT_OUTPUT_FORMAT = "console"
-SUPPORTED_OUTPUT_FORMATS = {"console", "json"}
+SUPPORTED_OUTPUT_FORMATS = {"console", "rich", "json", "sarif", "compact"}
 
 # Built-in rules configuration
 BUILTIN_RULES_ENABLED = True
