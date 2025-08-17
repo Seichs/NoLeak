@@ -181,18 +181,4 @@ def get_scannable_files(
 
 
 
-def get_relative_path(file_path: Path, base_path: Path) -> str:
-    """Get a relative path string for display purposes.
-    
-    Args:
-        file_path: The file path.
-        base_path: The base path to make it relative to.
-        
-    Returns:
-        Relative path as string, or absolute path if not relative.
-    """
-    try:
-        return str(file_path.relative_to(base_path))
-    except ValueError:
-        # Not relative to base_path, return absolute path
-        return str(file_path)
+
