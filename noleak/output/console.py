@@ -1,6 +1,7 @@
 """Console output formatter for displaying scan results in terminal."""
 
 import sys
+import os
 from typing import List, Optional
 from pathlib import Path
 
@@ -44,8 +45,8 @@ class ConsoleFormatter(BaseFormatter):
         return (
             hasattr(sys.stdout, 'isatty') and
             sys.stdout.isatty() and
-            'TERM' in sys.environ and
-            sys.environ['TERM'] != 'dumb'
+            'TERM' in os.environ and
+            os.environ['TERM'] != 'dumb'
         )
     
     def _colorize(self, text: str, color: str, bold: bool = False) -> str:

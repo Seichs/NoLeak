@@ -55,6 +55,7 @@ For more information, visit: https://github.com/Seichs/NoLeak
     # Positional arguments
     parser.add_argument(
         "path",
+        nargs="?",
         help="Path to scan (file or directory)"
     )
     
@@ -326,7 +327,11 @@ def validate_arguments(args: argparse.Namespace) -> None:
     Raises:
         SystemExit: If arguments are invalid.
     """
-    # Check if path exists
+    # Check if path is required and exists
+    if args.path is None:
+        print("Error: Path argument is required", file=sys.stderr)
+        sys.exit(EXIT_ERROR)
+    
     path = Path(args.path)
     if not path.exists():
         print(f"Error: Path does not exist: {args.path}", file=sys.stderr)
