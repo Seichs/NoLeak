@@ -178,29 +178,7 @@ def get_scannable_files(
     return sorted(files)
 
 
-def safe_read_file(file_path: Path, encoding: str = "utf-8") -> Optional[str]:
-    """Safely read a file's contents with error handling.
-    
-    Args:
-        file_path: Path to the file to read.
-        encoding: File encoding to use.
-        
-    Returns:
-        File contents as string, or None if reading failed.
-    """
-    try:
-        with open(file_path, "r", encoding=encoding, errors="ignore") as f:
-            return f.read()
-    except (OSError, UnicodeDecodeError):
-        # Try with different encodings if UTF-8 fails
-        for fallback_encoding in ["latin1", "cp1252", "iso-8859-1"]:
-            try:
-                with open(file_path, "r", encoding=fallback_encoding, errors="ignore") as f:
-                    return f.read()
-            except (OSError, UnicodeDecodeError):
-                continue
-        # If all encodings fail, return None
-        return None
+
 
 
 def get_relative_path(file_path: Path, base_path: Path) -> str:

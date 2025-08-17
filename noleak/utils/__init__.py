@@ -5,7 +5,6 @@ from .path_tools import (
     is_file_supported,
     is_path_excluded, 
     get_scannable_files,
-    safe_read_file,
     get_relative_path
 )
 
@@ -14,6 +13,5 @@ __all__ = [
     "is_file_supported",
     "is_path_excluded",
     "get_scannable_files", 
-    "safe_read_file",
     "get_relative_path"
 ]

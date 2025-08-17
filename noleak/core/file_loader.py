@@ -6,7 +6,6 @@ from typing import Optional, List, Dict, Any, Tuple
 import chardet
 
 from ..config.settings import ScannerConfig
-from ..utils.path_tools import safe_read_file
 
 
 class FileLoader:
