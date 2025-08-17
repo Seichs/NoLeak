@@ -1,58 +1,114 @@
-# NoLeak
+# NoLeak 🔒
 
-A professional DevSecOps tool for scanning hardcoded secrets in source code.
-
-NoLeak is a powerful, extensible secret scanner designed to detect hardcoded credentials, API keys, tokens, and other sensitive information in your codebase before they reach production. Built with enterprise-grade reliability and performance in mind.
+**Find secrets hiding in your code!**
+NoLeak is a powerful, extensible secret scanner designed to detect hardcoded credentials, 
+API keys, tokens, and other sensitive information in your codebase before they reach 
+production. Built with enterprise-grade reliability and performance in mind.
 
 ## Features
-
-- **Comprehensive Detection**: Built-in rules for 20+ types of secrets including AWS keys, API tokens, database credentials, and more
+- **Comprehensive Detection**: Built-in rules for 20+ types of secrets including AWS 
+keys, API tokens, database credentials, and more
 - **Custom Rules**: Support for custom regex rules via YAML configuration files
-- **Multiple Output Formats**: Console, JSON, SARIF, and compact formats for different use cases
+- **Multiple Output Formats**: Console, JSON, SARIF, and compact formats for different 
+use cases
 - **High Performance**: Concurrent scanning with configurable thread pools
 - **Professional CLI**: Rich command-line interface with extensive configuration options
 - **CI/CD Ready**: Proper exit codes and structured output for pipeline integration
 - **Extensible Architecture**: Clean, modular design for easy customization and extension
 
-## Quick Start
+## Super Quick Start
 
-### Installation
-
-Install from PyPI:
+### Step 1: Install
 ```bash
 pip install noleak
 ```
 
-Install from source:
+### Step 2: Use it!
 ```bash
-git clone https://github.com/Seichs/NoLeak.git
-cd NoLeak
-pip install -e .
+# Scan your project
+noleak .
+
+# Scan a specific file
+noleak myfile.py
 ```
 
-### Basic Usage
+**That's it!** 🎉
 
-Scan current directory:
+## What does it do?
+
+NoLeak looks for things like:
+- 🔑 **API Keys** (AWS, Google, Stripe, etc.)
+- 🔐 **Passwords** in your code
+- 🗄️ **Database credentials**
+- 🎫 **Tokens** (GitHub, Slack, etc.)
+- 📜 **Private keys and certificates**
+
+## Basic Examples
+
+```bash
+# Check your entire project for secrets
+noleak .
+
+# Check just one file
+noleak config.py
+
+# Get results as JSON (for tools)
+noleak . --output json
+
+# See what rules it uses
+noleak --list-rules
+```
+
+## What the results mean
+
+- **✅ Exit code 0**: No secrets found - you're safe!
+- **⚠️ Exit code 1**: Found secrets - fix them!
+- **❌ Exit code 2**: Something went wrong
+
+## Example Output
+
+```
+./config.py
+  [C] AWS Access Key ID (aws_access_key)
+    Line 15:
+      AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
+                           ^^^^^^^^^^^^^^^^^^^^
+    Matched: AKIAIOSFODNN7EXAMPLE
+```
+
+**[C] = Critical, [H] = High, [M] = Medium, [L] = Low**
+
+## More Options (If You Need Them)
+
+```bash
+# Quiet mode (less text)
+noleak . --minimal
+
+# Custom rules
+noleak . --rules my_rules.yaml
+
+# Create example rules file
+noleak --create-rules-example my_rules.yaml
+```
+
+## Use in CI/CD
+
+Add this to your build pipeline to catch secrets before they go live:
+
 ```bash
 noleak .
+if [ $? -eq 1 ]; then
+  echo "❌ Secrets found! Fix them before deploying."
+  exit 1
+fi
 ```
 
-Scan specific file:
-```bash
-noleak config.py
-```
+## Advanced Usage
 
-Output as JSON:
-```bash
-noleak . --output json
-```
+<details>
+<summary>Click for advanced options</summary>
 
-Use custom rules:
-```bash
-noleak . --rules custom_rules.yaml
-```
-
-## Command Line Interface
+### Command Line Interface
 
 ```
 usage: noleak [-h] [--output {console,json,sarif,compact}] [--no-color] 
@@ -62,21 +118,15 @@ usage: noleak [-h] [--output {console,json,sarif,compact}] [--no-color]
               [--threads N] [--version] [--info]
               path
 
-A DevSecOps tool for scanning hardcoded secrets in source code
-
-positional arguments:
-  path                  Path to scan (file or directory)
-
 Output Options:
-  --output {console,json,sarif,compact}, -o {console,json,sarif,compact}
-                        Output format (default: console)
+  --output, -o          Output format (console, json, sarif, compact)
   --no-color            Disable colored output
   --minimal             Use minimal output format
   --quiet, -q           Suppress all output except errors
   --verbose, -v         Enable verbose output
 
 Rule Options:
-  --rules FILE, -r FILE Path to custom rules file (YAML format)
+  --rules, -r FILE      Path to custom rules file (YAML format)
   --no-builtin-rules    Disable built-in rules
   --list-rules          List all available rules and exit
   --create-rules-example FILE
@@ -93,40 +143,32 @@ Information:
   --info                Show scanner configuration and exit
 ```
 
-### Exit Codes
+### Built-in Detection Rules
 
-- `0`: No secrets found
-- `1`: Secrets detected
-- `2`: Error occurred
-
-## Built-in Detection Rules
-
-NoLeak includes detection rules for:
-
-### Critical Severity
+**Critical Severity:**
 - AWS Access Keys and Secret Keys
 - Database connection strings with credentials
 - Private keys and certificates
 - Stripe API keys
 
-### High Severity  
+**High Severity:**
 - GitHub personal access tokens
 - Google API keys
 - Slack tokens
 - Docker authentication tokens
 - Generic API keys
 
-### Medium Severity
+**Medium Severity:**
 - JWT tokens
 - Password assignments in code
 - Email/SMTP credentials
 - Base64 encoded secrets
 
-### Low Severity
+**Low Severity:**
 - Public certificates
 - Some generic secret patterns
 
-## Custom Rules
+### Custom Rules
 
 Create custom detection rules using YAML format:
 
@@ -151,42 +193,31 @@ Use custom rules:
 noleak . --rules my_rules.yaml
 ```
 
-## Output Formats
+### Output Formats
 
-### Console Output (Default)
-Human-readable terminal output with colors and context:
-```
-./config.py
-  [H] AWS Access Key ID (aws_access_key)
-    Detects AWS Access Key IDs
-    Line 15:
-      AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
-                           ^^^^^^^^^^^^^^^^^^^^
-    Matched: AKIAIOSFODNN7EXAMPLE
-```
+**Console Output (Default)**
+Human-readable terminal output with colors and context.
 
-### JSON Output
-Structured data for programmatic processing:
+**JSON Output**
 ```bash
 noleak . --output json > results.json
 ```
 
-### SARIF Output
+**SARIF Output**
 Standard format for static analysis tools:
 ```bash
 noleak . --output sarif > results.sarif
 ```
 
-### Compact Output
+**Compact Output**
 Minimal JSON for basic integration:
 ```bash
 noleak . --output compact
 ```
 
-## CI/CD Integration
+### CI/CD Integration Examples
 
-### GitHub Actions
-
+**GitHub Actions:**
 ```yaml
 name: Secret Scan
 on: [push, pull_request]
@@ -212,8 +243,7 @@ jobs:
           fi
 ```
 
-### Jenkins Pipeline
-
+**Jenkins Pipeline:**
 ```groovy
 pipeline {
     agent any
@@ -241,8 +271,7 @@ pipeline {
 }
 ```
 
-### GitLab CI
-
+**GitLab CI:**
 ```yaml
 secret_scan:
   stage: security
@@ -262,7 +291,7 @@ secret_scan:
     when: always
 ```
 
-## Python API
+### Python API
 
 Use NoLeak programmatically in Python:
 
@@ -295,7 +324,7 @@ config = noleak.ScannerConfig(
 scanner = noleak.SecretScanner(config=config)
 ```
 
-## Performance
+### Performance
 
 NoLeak is designed for high performance:
 
@@ -309,9 +338,9 @@ Typical performance:
 - ~50MB/second throughput
 - Linear scaling with thread count
 
-## Configuration
+### Configuration
 
-### File Extensions
+**File Extensions**
 By default, NoLeak scans common source code file types. Customize with:
 
 ```bash
@@ -322,7 +351,7 @@ noleak . --include-ext .txt --include-ext .log
 noleak . --exclude-ext .md --exclude-ext .rst
 ```
 
-### File Size Limits
+**File Size Limits**
 Control maximum file size to scan:
 
 ```bash
@@ -330,7 +359,7 @@ Control maximum file size to scan:
 noleak . --max-file-size 5242880
 ```
 
-### Threading
+**Threading**
 Adjust concurrent scanning threads:
 
 ```bash
@@ -338,20 +367,17 @@ Adjust concurrent scanning threads:
 noleak . --threads 20
 ```
 
-## Testing
+</details>
+
+## Test It Out
 
 The `examples/` directory contains test files with fake secrets:
 
 ```bash
-# Test the scanner
+# Try it on our test files
 noleak examples/
 
-# Expected: Multiple detections across different file types
-```
-
-Run unit tests:
-```bash
-pytest tests/
+# You should see lots of detections!
 ```
 
 ## Contributing
@@ -377,15 +403,15 @@ pytest
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## Roadmap
+## Support
 
-- [ ] Machine learning-based secret detection
-- [ ] Integration with secret management systems
-- [ ] Advanced false positive reduction
-- [ ] IDE plugins and extensions
-- [ ] Webhook notifications
-- [ ] Historical scanning and reporting
+- **Issues**: [GitHub Issues](https://github.com/Seichs/NoLeak/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Seichs/NoLeak/discussions)
+
+## Security
+
+Found a security issue? Please email security@noleak.dev instead of creating a public issue.
 
 ---
 
-**Protect your code. Secure your secrets. Use NoLeak.**
+**🛡️ Protect your code. Secure your secrets. Use NoLeak.**
