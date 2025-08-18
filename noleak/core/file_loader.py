@@ -228,21 +228,22 @@ class FileLoader:
     def preprocess_content(self, content: str) -> str:
         """Preprocess file content before scanning.
         
-        This method can be used to normalize content, remove comments,
-        or apply other transformations before pattern matching.
+        Currently returns content unchanged for maximum scanning speed
+        and reliability. Future versions may add optional preprocessing
+        features such as comment removal and content normalization.
         
         Args:
             content: Raw file content.
             
         Returns:
-            Preprocessed content.
+            Content ready for pattern matching (currently unmodified).
         """
-        # TODO: Add content preprocessing options:
-        # - Remove comments for specific file types
-        # - Normalize whitespace
-        # - Handle escaped strings
-        # - Decode base64/hex encoded data
-        
+        # No preprocessing applied - prioritizing speed and reliability
+        # Future enhancements could include:
+        # - Comment removal for supported file types
+        # - Whitespace normalization  
+        # - String unescaping
+        # - Base64/hex decoding
         return content
     
     def clear_encoding_cache(self) -> None:
