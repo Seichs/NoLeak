@@ -92,9 +92,9 @@ class PatternMatcher:
         matches = []
         lines = text.splitlines()
         
-        for rule in self._compiled_rules:
-            # Find matches for this rule
-            for line_idx, line in enumerate(lines, 1):
+        # Process each line once against all rules (much faster!)
+        for line_idx, line in enumerate(lines, 1):
+            for rule in self._compiled_rules:
                 line_matches = self._find_line_matches(rule, line, line_idx, file_path)
                 matches.extend(line_matches)
         
