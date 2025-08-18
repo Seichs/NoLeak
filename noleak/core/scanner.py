@@ -1,12 +1,16 @@
 """Main scanner engine that orchestrates the secret detection process."""
 
 import time
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Iterator
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 
 from ..config.settings import ScannerConfig, EXIT_SUCCESS, EXIT_LEAKS_FOUND, EXIT_ERROR
+
+# Set up logger for this module
+logger = logging.getLogger(__name__)
 from ..rules.loader import RuleLoader, create_default_loader
 from ..utils.path_tools import get_scannable_files, normalize_path
 from .file_loader import FileLoader
@@ -141,7 +145,8 @@ class SecretScanner:
             
         except Exception as e:
             stats.scan_time = time.time() - start_time
-            # In a real application, you might want to log this error
+            # Log the error for debugging and user feedback
+            logger.error(f"Scan failed for path '{target_path}': {e}")
             return ScanResult(
                 matches=[],
                 stats=stats,
