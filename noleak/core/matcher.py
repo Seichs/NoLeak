@@ -1,11 +1,15 @@
 """Pattern matcher for detecting secrets using regex rules."""
 
 import re
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, NamedTuple, Iterator
 from dataclasses import dataclass
 
 from ..rules.loader import RuleLoader
+
+# Set up logger for this module
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -73,7 +77,7 @@ class PatternMatcher:
                 self._compiled_rules.append(compiled_rule)
             except re.error as e:
                 # Log warning about invalid regex pattern
-                print(f"Warning: Invalid regex pattern in rule '{rule['id']}': {e}")
+                logger.warning(f"Invalid regex pattern in rule '{rule['id']}': {e}")
     
     def scan_text(self, text: str, file_path: Path) -> List[Match]:
         """Scan text content for pattern matches.

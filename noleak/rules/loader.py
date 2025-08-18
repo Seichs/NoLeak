@@ -1,10 +1,14 @@
 """Rule loader for external and built-in regex rules."""
 
 import yaml
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
 
 from .builtins import get_enabled_builtin_rules, validate_rule
+
+# Set up logger for this module
+logger = logging.getLogger(__name__)
 
 
 class RuleLoader:
@@ -264,7 +268,7 @@ def load_rules_from_directory(directory: Union[str, Path]) -> RuleLoader:
                 loader.load_rules_from_file(file_path)
             except Exception as e:
                 # Log warning but continue loading other files
-                print(f"Warning: Failed to load rules from {file_path}: {e}")
+                logger.warning(f"Failed to load rules from {file_path}: {e}")
     
     return loader
 
