@@ -10,6 +10,10 @@ from .builtins import get_enabled_builtin_rules, validate_rule
 # Set up logger for this module
 logger = logging.getLogger(__name__)
 
+# Global cache for loaded rules to avoid reloading from disk
+_rules_cache: Optional['RuleLoader'] = None
+_cache_key: Optional[tuple] = None
+
 
 class RuleLoader:
     """Handles loading and managing regex rules from various sources."""
@@ -275,17 +279,31 @@ def load_rules_from_directory(directory: Union[str, Path]) -> RuleLoader:
 
 def create_default_loader(
     builtin_rules: bool = True,
-    external_rules_file: Optional[Union[str, Path]] = None
+    external_rules_file: Optional[Union[str, Path]] = None,
+    use_cache: bool = True
 ) -> RuleLoader:
     """Create a rule loader with default configuration.
     
     Args:
         builtin_rules: Whether to load built-in rules.
         external_rules_file: Optional path to external rules file.
+        use_cache: Whether to use cached rules (default: True for performance).
         
     Returns:
         Configured RuleLoader instance.
     """
+    global _rules_cache, _cache_key
+    
+    # Create cache key based on configuration
+    cache_key = (builtin_rules, str(external_rules_file) if external_rules_file else None)
+    
+    # Return cached loader if available and cache is enabled
+    if use_cache and _rules_cache is not None and _cache_key == cache_key:
+        logger.debug(f"Using cached rules (builtin={builtin_rules}, external={external_rules_file})")
+        return _rules_cache
+    
+    # Create new loader
+    logger.debug(f"Loading rules from disk (builtin={builtin_rules}, external={external_rules_file})")
     loader = RuleLoader()
     
     if builtin_rules:
@@ -294,4 +312,33 @@ def create_default_loader(
     if external_rules_file:
         loader.load_rules_from_file(external_rules_file)
     
+    # Cache the loader if caching is enabled
+    if use_cache:
+        _rules_cache = loader
+        _cache_key = cache_key
+    
     return loader
+
+
+def clear_rules_cache() -> None:
+    """Clear the global rules cache.
+    
+    Use this when you've updated rule files and want to force a reload.
+    """
+    global _rules_cache, _cache_key
+    _rules_cache = None
+    _cache_key = None
+    logger.debug("Rules cache cleared")
+
+
+def get_cache_stats() -> Dict[str, Any]:
+    """Get statistics about the rules cache.
+    
+    Returns:
+        Dictionary with cache statistics.
+    """
+    return {
+        "cached": _rules_cache is not None,
+        "cache_key": _cache_key,
+        "rules_count": len(_rules_cache.get_rules()) if _rules_cache else 0
+    }
