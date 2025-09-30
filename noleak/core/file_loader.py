@@ -1,11 +1,14 @@
 """File loader with safe reading and encoding detection."""
 
 import os
+import logging
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple
 import chardet
 
 from ..config.settings import ScannerConfig
+
+logger = logging.getLogger(__name__)
 
 
 class FileLoader:
@@ -89,7 +92,11 @@ class FileLoader:
         fallback_encodings = ["latin1", "cp1252", "iso-8859-1"]
         for encoding in fallback_encodings:
             try:
-                with open(file_path, "r", encoding=encoding, errors="ignore") as f:
+                logger.warning(
+                    f"Encoding issues with file: {file_path}. "
+                    f"Using fallback encoding ({encoding}) with replacement strategy."
+                )
+                with open(file_path, "r", encoding=encoding, errors="replace") as f:
                     content = f.read()
                     self._encoding_cache[str(file_path)] = encoding
                     return content
